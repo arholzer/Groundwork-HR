@@ -540,24 +540,46 @@ export default function Admin() {
                           Admin password is not set for this deployment
                         </p>
                         <p className="text-gw-navy/60">
-                          In{" "}
-                          <span className="font-semibold text-gw-navy/80">
-                            Vercel
-                          </span>
-                          : open this project →{" "}
-                          <span className="font-semibold text-gw-navy/80">
-                            Settings → Environment Variables
-                          </span>
-                          , add{" "}
+                          Vercel only injects this when it runs{" "}
+                          <code className="text-xs font-mono text-gw-navy/80 bg-gw-navy/[0.06] px-1.5 py-0.5 rounded">
+                            vite build
+                          </code>
+                          . Add{" "}
                           <code className="text-xs font-mono text-gw-primary bg-gw-primary/5 px-1.5 py-0.5 rounded">
                             VITE_ADMIN_PASSWORD
                           </code>{" "}
-                          for{" "}
+                          on the{" "}
+                          <span className="font-semibold text-gw-navy/80">
+                            groundwork-hr
+                          </span>{" "}
+                          project:{" "}
+                          <span className="font-semibold text-gw-navy/80">
+                            Settings → Environment Variables
+                          </span>
+                          , enable{" "}
                           <span className="font-semibold text-gw-navy/80">
                             Production
                           </span>
-                          , then trigger a new deployment so the value is baked
-                          into the build.
+                          , save, then start a{" "}
+                          <span className="font-semibold text-gw-navy/80">
+                            new
+                          </span>{" "}
+                          production deployment.
+                        </p>
+                        <p className="text-gw-navy/60 mt-2">
+                          If you created the variable under{" "}
+                          <span className="font-semibold text-gw-navy/80">
+                            Team
+                          </span>{" "}
+                          settings, open it →{" "}
+                          <span className="font-semibold text-gw-navy/80">
+                            Link to Projects
+                          </span>{" "}
+                          → choose{" "}
+                          <span className="font-semibold text-gw-navy/80">
+                            groundwork-hr
+                          </span>{" "}
+                          — otherwise builds never see it.
                         </p>
                       </>
                     )}

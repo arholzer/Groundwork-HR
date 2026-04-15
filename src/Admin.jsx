@@ -517,20 +517,50 @@ export default function Admin() {
                     </svg>
                   </div>
                   <div className="text-sm text-gw-navy/70 leading-snug min-w-0">
-                    <p className="font-semibold text-gw-navy mb-1">
-                      Finish setup on this machine
-                    </p>
-                    <p className="text-gw-navy/60">
-                      Add{" "}
-                      <code className="text-xs font-mono text-gw-primary bg-gw-primary/5 px-1.5 py-0.5 rounded">
-                        VITE_ADMIN_PASSWORD
-                      </code>{" "}
-                      to your{" "}
-                      <code className="text-xs font-mono text-gw-navy/80 bg-gw-navy/[0.06] px-1.5 py-0.5 rounded">
-                        .env
-                      </code>{" "}
-                      file, then restart the dev server.
-                    </p>
+                    {import.meta.env.DEV ? (
+                      <>
+                        <p className="font-semibold text-gw-navy mb-1">
+                          Finish setup on this machine
+                        </p>
+                        <p className="text-gw-navy/60">
+                          Add{" "}
+                          <code className="text-xs font-mono text-gw-primary bg-gw-primary/5 px-1.5 py-0.5 rounded">
+                            VITE_ADMIN_PASSWORD
+                          </code>{" "}
+                          to your{" "}
+                          <code className="text-xs font-mono text-gw-navy/80 bg-gw-navy/[0.06] px-1.5 py-0.5 rounded">
+                            .env
+                          </code>{" "}
+                          file, then restart the dev server.
+                        </p>
+                      </>
+                    ) : (
+                      <>
+                        <p className="font-semibold text-gw-navy mb-1">
+                          Admin password is not set for this deployment
+                        </p>
+                        <p className="text-gw-navy/60">
+                          In{" "}
+                          <span className="font-semibold text-gw-navy/80">
+                            Vercel
+                          </span>
+                          : open this project →{" "}
+                          <span className="font-semibold text-gw-navy/80">
+                            Settings → Environment Variables
+                          </span>
+                          , add{" "}
+                          <code className="text-xs font-mono text-gw-primary bg-gw-primary/5 px-1.5 py-0.5 rounded">
+                            VITE_ADMIN_PASSWORD
+                          </code>{" "}
+                          for{" "}
+                          <span className="font-semibold text-gw-navy/80">
+                            Production
+                          </span>
+                          , then trigger a new deployment so the value is baked
+                          into the build.
+                        </p>
+                      </>
+                    )}
                   </div>
                 </div>
               )}

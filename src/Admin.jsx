@@ -15,7 +15,8 @@ function normalizePasswordInput(value) {
     .trim();
 }
 
-function readExpectedPassword() {
+/** Vite-inlined password — local `vite` / `vite preview` only; production uses `/api`. */
+function readClientDevPassword() {
   const raw = import.meta.env.VITE_ADMIN_PASSWORD;
   if (raw == null || raw === "") return "";
   return normalizePasswordInput(raw);
@@ -339,7 +340,28 @@ export default function Admin() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState(false);
   const [authed, setAuthed] = useState(false);
-  const configured = Boolean(readExpectedPassword());
+  /** dev: client env only | prod: loading → api_ready / api_missing / api_fallback */
+  const [remoteGate, setRemoteGate] = useState(() =>
+    import.meta.env.DEV ? "dev" : "loading"
+  );
+
+  const clientDevPassword = readClientDevPassword();
+  const configured = import.meta.env.DEV
+    ? Boolean(clientDevPassword)
+    : remoteGate === "loading"
+      ? null
+      : remoteGate === "api_ready"
+        ? true
+        : remoteGate === "api_missing"
+          ? false
+          : Boolean(clientDevPassword);
+
+  const showPasswordSetupHelp =
+    (import.meta.env.DEV && !clientDevPassword) ||
+    (!import.meta.env.DEV && remoteGate === "api_missing") ||
+    (!import.meta.env.DEV &&
+      remoteGate === "api_fallback" &&
+      !clientDevPassword);
 
   const [rows, setRows] = useState([]);
   const [listState, setListState] = useState({
@@ -364,6 +386,26 @@ export default function Admin() {
 
   useEffect(() => {
     if (sessionStorage.getItem(SESSION_KEY) === "1") setAuthed(true);
+  }, []);
+
+  useEffect(() => {
+    if (import.meta.env.DEV) return;
+    let cancelled = false;
+    fetch("/api/admin-auth-status")
+      .then((r) => {
+        if (!r.ok) throw new Error("bad status");
+        return r.json();
+      })
+      .then((data) => {
+        if (cancelled) return;
+        setRemoteGate(data?.configured ? "api_ready" : "api_missing");
+      })
+      .catch(() => {
+        if (!cancelled) setRemoteGate("api_fallback");
+      });
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   useEffect(() => {
@@ -410,19 +452,45 @@ export default function Admin() {
     [loadSubmissions]
   );
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError(false);
-    const expected = readExpectedPassword();
-    if (!expected) {
-      setError(true);
+    const typed = normalizePasswordInput(password);
+
+    if (import.meta.env.DEV || remoteGate === "api_fallback") {
+      const expected = readClientDevPassword();
+      if (!expected) {
+        setError(true);
+        return;
+      }
+      if (typed === expected) {
+        sessionStorage.setItem(SESSION_KEY, "1");
+        setAuthed(true);
+        setPassword("");
+      } else {
+        setError(true);
+      }
       return;
     }
-    if (normalizePasswordInput(password) === expected) {
-      sessionStorage.setItem(SESSION_KEY, "1");
-      setAuthed(true);
-      setPassword("");
-    } else {
+
+    if (remoteGate !== "api_ready") {
+      return;
+    }
+
+    try {
+      const res = await fetch("/api/verify-admin-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password: typed }),
+      });
+      if (res.ok) {
+        sessionStorage.setItem(SESSION_KEY, "1");
+        setAuthed(true);
+        setPassword("");
+        return;
+      }
+      setError(true);
+    } catch {
       setError(true);
     }
   };
@@ -506,7 +574,15 @@ export default function Admin() {
                 .
               </p>
 
-              {!configured && (
+              {!import.meta.env.DEV &&
+                remoteGate === "loading" &&
+                !authed && (
+                  <p className="text-sm text-gw-navy/50 mb-6">
+                    Checking server configuration…
+                  </p>
+                )}
+
+              {showPasswordSetupHelp && (
                 <div className="mb-8 rounded-xl bg-gw-navy/[0.03] border border-gw-navy/10 px-4 py-3.5 flex gap-3">
                   <div
                     className="flex-shrink-0 w-9 h-9 rounded-lg bg-gw-primary/10 flex items-center justify-center text-gw-primary"
@@ -547,70 +623,91 @@ export default function Admin() {
                     ) : (
                       <>
                         <p className="font-semibold text-gw-navy mb-1">
-                          Admin password is not set for this deployment
+                          {remoteGate === "api_fallback"
+                            ? "Could not reach server sign-in"
+                            : "Admin password is not set on the server"}
                         </p>
-                        <p className="text-gw-navy/60">
-                          Vercel only injects this when it runs{" "}
-                          <code className="text-xs font-mono text-gw-navy/80 bg-gw-navy/[0.06] px-1.5 py-0.5 rounded">
-                            vite build
-                          </code>
-                          . Add{" "}
-                          <code className="text-xs font-mono text-gw-primary bg-gw-primary/5 px-1.5 py-0.5 rounded">
-                            VITE_ADMIN_PASSWORD
-                          </code>{" "}
-                          on the{" "}
-                          <span className="font-semibold text-gw-navy/80">
-                            groundwork-hr
-                          </span>{" "}
-                          project:{" "}
-                          <span className="font-semibold text-gw-navy/80">
-                            Settings → Environment Variables
-                          </span>
-                          , enable{" "}
-                          <span className="font-semibold text-gw-navy/80">
-                            Production
-                          </span>
-                          , save, then start a{" "}
-                          <span className="font-semibold text-gw-navy/80">
-                            new
-                          </span>{" "}
-                          production deployment.
-                        </p>
-                        <p className="text-gw-navy/60 mt-2">
-                          If you created the variable under{" "}
-                          <span className="font-semibold text-gw-navy/80">
-                            Team
-                          </span>{" "}
-                          settings, open it →{" "}
-                          <span className="font-semibold text-gw-navy/80">
-                            Link to Projects
-                          </span>{" "}
-                          → choose{" "}
-                          <span className="font-semibold text-gw-navy/80">
-                            groundwork-hr
-                          </span>{" "}
-                          — otherwise builds never see it.
-                        </p>
-                        <p className="text-gw-navy/60 mt-2">
-                          On the{" "}
-                          <span className="font-semibold text-gw-navy/80">
-                            groundwork-hr
-                          </span>{" "}
-                          project, check{" "}
-                          <span className="font-semibold text-gw-navy/80">
-                            Environment Variables
-                          </span>{" "}
-                          for a second{" "}
-                          <code className="text-xs font-mono text-gw-primary bg-gw-primary/5 px-1.5 py-0.5 rounded">
-                            VITE_ADMIN_PASSWORD
-                          </code>{" "}
-                          entry with an{" "}
-                          <span className="font-semibold text-gw-navy/80">
-                            empty
-                          </span>{" "}
-                          value — project keys override team keys, which
-                          silences a linked shared password.
-                        </p>
+                        {remoteGate === "api_fallback" ? (
+                          <p className="text-gw-navy/60">
+                            Deploy the latest commit so Vercel includes the{" "}
+                            <code className="text-xs font-mono text-gw-navy/80 bg-gw-navy/[0.06] px-1.5 py-0.5 rounded">
+                              api/
+                            </code>{" "}
+                            folder. On production, add{" "}
+                            <code className="text-xs font-mono text-gw-primary bg-gw-primary/5 px-1.5 py-0.5 rounded">
+                              ADMIN_STAFF_PASSWORD
+                            </code>{" "}
+                            on project{" "}
+                            <span className="font-semibold text-gw-navy/80">
+                              groundwork-hr
+                            </span>{" "}
+                            (Settings → Environment Variables → Production). For
+                            local{" "}
+                            <code className="text-xs font-mono text-gw-navy/80 bg-gw-navy/[0.06] px-1.5 py-0.5 rounded">
+                              vite preview
+                            </code>
+                            , add{" "}
+                            <code className="text-xs font-mono text-gw-primary bg-gw-primary/5 px-1.5 py-0.5 rounded">
+                              VITE_ADMIN_PASSWORD
+                            </code>{" "}
+                            to{" "}
+                            <code className="text-xs font-mono text-gw-navy/80 bg-gw-navy/[0.06] px-1.5 py-0.5 rounded">
+                              .env
+                            </code>{" "}
+                            or run{" "}
+                            <code className="text-xs font-mono text-gw-navy/80 bg-gw-navy/[0.06] px-1.5 py-0.5 rounded">
+                              vercel dev
+                            </code>
+                            .
+                          </p>
+                        ) : (
+                          <>
+                            <p className="text-gw-navy/60">
+                              On Vercel, open project{" "}
+                              <span className="font-semibold text-gw-navy/80">
+                                groundwork-hr
+                              </span>{" "}
+                              →{" "}
+                              <span className="font-semibold text-gw-navy/80">
+                                Settings → Environment Variables
+                              </span>{" "}
+                              and add{" "}
+                              <code className="text-xs font-mono text-gw-primary bg-gw-primary/5 px-1.5 py-0.5 rounded">
+                                ADMIN_STAFF_PASSWORD
+                              </code>{" "}
+                              for{" "}
+                              <span className="font-semibold text-gw-navy/80">
+                                Production
+                              </span>
+                              . Sign-in checks that value on the{" "}
+                              <span className="font-semibold text-gw-navy/80">
+                                server
+                              </span>{" "}
+                              (it is not embedded in the static JavaScript bundle).
+                              You can use{" "}
+                              <code className="text-xs font-mono text-gw-primary bg-gw-primary/5 px-1.5 py-0.5 rounded">
+                                VITE_ADMIN_PASSWORD
+                              </code>{" "}
+                              instead if you prefer; the API accepts either name.
+                            </p>
+                            <p className="text-gw-navy/60 mt-2">
+                              Team-level variables must be{" "}
+                              <span className="font-semibold text-gw-navy/80">
+                                linked
+                              </span>{" "}
+                              to{" "}
+                              <span className="font-semibold text-gw-navy/80">
+                                groundwork-hr
+                              </span>
+                              . Remove any{" "}
+                              <span className="font-semibold text-gw-navy/80">
+                                empty
+                              </span>{" "}
+                              project-level duplicate of the same key (it
+                              overrides linked team values).
+                            </p>
+                          </>
+                        )}
                       </>
                     )}
                   </div>
@@ -640,12 +737,13 @@ export default function Admin() {
                   {error && (
                     <p className="text-sm text-red-600/90 mt-2.5 flex items-center gap-1.5">
                       <span className="inline-block w-1 h-1 rounded-full bg-red-500 shrink-0" />
-                      {configured ? (
+                      {configured === true ? (
                         <>
                           That password didn’t match. Re-type it carefully
-                          (copy/paste can add hidden spaces). If you recently
-                          changed the password in Vercel, redeploy so the new
-                          value is in the build.
+                          (copy/paste can add hidden spaces).
+                          {import.meta.env.DEV || remoteGate === "api_fallback"
+                            ? " If you use .env, restart the dev server after changing it."
+                            : " You can update the value in Vercel without redeploying."}
                         </>
                       ) : (
                         "Password isn’t configured for this build yet."
@@ -655,7 +753,7 @@ export default function Admin() {
                 </div>
                 <button
                   type="submit"
-                  disabled={!configured}
+                  disabled={configured !== true}
                   className="w-full rounded-full bg-gw-primary py-3.5 text-sm font-bold text-white shadow-lg shadow-gw-primary/25 hover:bg-gw-primary-dark transition-all hover:shadow-gw-primary/35 disabled:opacity-45 disabled:shadow-none disabled:cursor-not-allowed"
                 >
                   Continue

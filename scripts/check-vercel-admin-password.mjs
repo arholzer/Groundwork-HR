@@ -1,21 +1,17 @@
 /**
- * Runs before `vite build` on Vercel. If VITE_ADMIN_PASSWORD is missing at build time,
- * /admin.html cannot unlock — Vite inlines this value when the bundle is produced.
+ * Runs before `vite build`. Production admin sign-in uses Vercel `/api` routes and
+ * **runtime** env (`ADMIN_STAFF_PASSWORD` or `VITE_ADMIN_PASSWORD`), so a missing
+ * value here does not mean production admin is broken.
  */
-const raw = process.env.VITE_ADMIN_PASSWORD;
-const ok = typeof raw === "string" && raw.trim().length > 0;
+const staff = process.env.ADMIN_STAFF_PASSWORD?.trim();
+const vite = process.env.VITE_ADMIN_PASSWORD?.trim();
 
-if (ok) {
+if (staff || vite) {
   console.log(
-    "[build] VITE_ADMIN_PASSWORD is set — admin sign-in will be available in this deployment."
+    "[build] Admin API will accept passwords from env at runtime (ADMIN_STAFF_PASSWORD or VITE_ADMIN_PASSWORD is set in this build environment)."
   );
 } else {
-  console.warn(
-    "\n[build] VITE_ADMIN_PASSWORD is missing — /admin.html will stay disabled in production.\n" +
-      "Fix on Vercel:\n" +
-      "  • Open project **groundwork-hr** → Settings → Environment Variables → add **VITE_ADMIN_PASSWORD** for **Production**.\n" +
-      "  • If you added it under **Team** settings instead, edit that variable and **Link to Projects** → select **groundwork-hr** (shared vars do nothing until linked).\n" +
-      "  • On the **project**, remove any duplicate **VITE_ADMIN_PASSWORD** with an **empty** value — it overrides a linked team variable.\n" +
-      "  • Then run a **new** Production deployment (Redeploy / push).\n"
+  console.log(
+    "[build] Admin gate: set ADMIN_STAFF_PASSWORD (recommended) or VITE_ADMIN_PASSWORD on the Vercel **groundwork-hr** project for Production — checked at **runtime** by /api (no client bundle embedding required)."
   );
 }

@@ -853,31 +853,68 @@ export default function Admin() {
                 {!isSupabaseConfigured() ? (
                   <div className="rounded-xl border border-gw-navy/10 bg-gw-muted/20 p-6 text-sm text-gw-navy/70">
                     <p className="font-semibold text-gw-navy mb-2">
-                      Connect Supabase in <code className="text-sm">.env</code>
+                      {import.meta.env.DEV
+                        ? "Connect Supabase in .env"
+                        : "Supabase is not wired for this deployment"}
                     </p>
-                    <p className="leading-relaxed mb-3">
-                      Add{" "}
-                      <code className="rounded bg-white px-1.5 py-0.5 text-xs">
-                        VITE_SUPABASE_URL
-                      </code>{" "}
-                      and{" "}
-                      <code className="rounded bg-white px-1.5 py-0.5 text-xs">
-                        VITE_SUPABASE_ANON_KEY
-                      </code>
-                      , run{" "}
-                      <code className="rounded bg-white px-1.5 py-0.5 text-xs">
-                        consultation-setup.sql
-                      </code>{" "}
-                      (or{" "}
-                      <code className="rounded bg-white px-1.5 py-0.5 text-xs">
-                        consultation-add-status.sql
-                      </code>{" "}
-                      if the table already exists), then restart{" "}
-                      <code className="rounded bg-white px-1.5 py-0.5 text-xs">
-                        npm run dev
-                      </code>
-                      .
-                    </p>
+                    {import.meta.env.DEV ? (
+                      <p className="leading-relaxed mb-3">
+                        Add{" "}
+                        <code className="rounded bg-white px-1.5 py-0.5 text-xs">
+                          VITE_SUPABASE_URL
+                        </code>{" "}
+                        and{" "}
+                        <code className="rounded bg-white px-1.5 py-0.5 text-xs">
+                          VITE_SUPABASE_ANON_KEY
+                        </code>
+                        , run{" "}
+                        <code className="rounded bg-white px-1.5 py-0.5 text-xs">
+                          consultation-setup.sql
+                        </code>{" "}
+                        (or{" "}
+                        <code className="rounded bg-white px-1.5 py-0.5 text-xs">
+                          consultation-add-status.sql
+                        </code>{" "}
+                        if the table already exists), then restart{" "}
+                        <code className="rounded bg-white px-1.5 py-0.5 text-xs">
+                          npm run dev
+                        </code>
+                        .
+                      </p>
+                    ) : (
+                      <p className="leading-relaxed mb-3">
+                        On Vercel, open project{" "}
+                        <span className="font-semibold text-gw-navy">
+                          groundwork-hr
+                        </span>{" "}
+                        → Settings → Environment Variables. Add{" "}
+                        <code className="rounded bg-white px-1.5 py-0.5 text-xs">
+                          VITE_SUPABASE_URL
+                        </code>{" "}
+                        and{" "}
+                        <code className="rounded bg-white px-1.5 py-0.5 text-xs">
+                          VITE_SUPABASE_ANON_KEY
+                        </code>{" "}
+                        from your Supabase project (Settings → API), and enable{" "}
+                        <span className="font-semibold text-gw-navy">
+                          Production
+                        </span>{" "}
+                        for both — Preview-only keys are not used on{" "}
+                        <span className="font-semibold text-gw-navy">
+                          hrgroundwork.com
+                        </span>
+                        . Then run a{" "}
+                        <span className="font-semibold text-gw-navy">
+                          new production deployment
+                        </span>{" "}
+                        so Vite bakes them into the build. In Supabase, run the
+                        SQL from{" "}
+                        <code className="rounded bg-white px-1.5 py-0.5 text-xs">
+                          consultation-setup.sql
+                        </code>{" "}
+                        if you have not already.
+                      </p>
+                    )}
                   </div>
                 ) : listState.error ? (
                   <div className="rounded-xl border border-red-200 bg-red-50/80 px-6 py-5 text-sm text-red-900">

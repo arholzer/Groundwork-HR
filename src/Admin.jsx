@@ -4,6 +4,7 @@ import {
   isSupabaseConfigured,
   updateSubmissionStatus,
 } from "./consultationsApi.js";
+import { getUsStateLabel } from "./usStates.js";
 
 const SESSION_KEY = "gw_admin_session";
 
@@ -241,6 +242,11 @@ function SubmissionDetailModal({ row, onClose, onSetStatus, statusBusy }) {
             ) : (
               "—"
             )}
+          </Field>
+          <Field label="Business state">
+            {row.business_state
+              ? getUsStateLabel(row.business_state)
+              : "—"}
           </Field>
           <Field label="Employees">
             {formatEmployees(row.employee_count)}

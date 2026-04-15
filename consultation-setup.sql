@@ -9,6 +9,7 @@ create table if not exists public.consultation_submissions (
   first_name text not null,
   last_name text not null,
   business_name text not null,
+  business_state text,
   phone_number text not null,
   email text not null,
   employee_count integer not null,

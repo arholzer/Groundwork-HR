@@ -2,9 +2,10 @@ import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { motion } from "motion/react";
 import * as Slider from "@radix-ui/react-slider";
-import { Check } from "lucide-react";
+import { Check, ChevronDown } from "lucide-react";
 import { loadCalendlyScript } from "./calendly.js";
 import { saveConsultationSubmission } from "./consultationsApi.js";
+import { US_STATE_OPTIONS } from "./usStates.js";
 
 /** GroundWork HR — Calendly booking (30 min). */
 const CALENDLY_URL =
@@ -31,6 +32,7 @@ const FORM_DEFAULTS = {
   firstName: "",
   lastName: "",
   businessName: "",
+  businessState: "",
   phoneNumber: "",
   email: "",
   employeeCount: 10,
@@ -291,6 +293,41 @@ export default function Consultation() {
             )}
           </motion.div>
 
+          {/* Business state */}
+          <motion.div variants={itemVariants}>
+            <label
+              htmlFor="consultation-business-state"
+              className="block text-xs font-bold tracking-[0.15em] uppercase mb-3 text-gw-navy/50"
+            >
+              What state is your business in?
+            </label>
+            <div className="relative">
+              <select
+                id="consultation-business-state"
+                {...register("businessState", {
+                  required: "Please select a state",
+                })}
+                className="w-full cursor-pointer appearance-none bg-transparent border-b-2 border-gw-navy/15 py-3 pr-10 text-lg text-gw-navy outline-none transition-colors duration-300 focus:border-gw-primary"
+              >
+                <option value="">Select a state…</option>
+                {US_STATE_OPTIONS.map(({ code, name }) => (
+                  <option key={code} value={code}>
+                    {name}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown
+                className="pointer-events-none absolute right-0 top-1/2 h-5 w-5 -translate-y-1/2 text-gw-navy/35"
+                aria-hidden
+              />
+            </div>
+            {errors.businessState && (
+              <p className="text-gw-primary text-sm mt-2">
+                {errors.businessState.message}
+              </p>
+            )}
+          </motion.div>
+
           {/* Phone Number */}
           <motion.div variants={itemVariants}>
             <label className="block text-xs font-bold tracking-[0.15em] uppercase mb-3 text-gw-navy/50">
@@ -311,8 +348,8 @@ export default function Consultation() {
             )}
           </motion.div>
 
-          {/* Email */}
-          <motion.div variants={itemVariants} className="lg:col-span-2">
+          {/* Email — same row as phone on lg (grid col 2) */}
+          <motion.div variants={itemVariants}>
             <label className="block text-xs font-bold tracking-[0.15em] uppercase mb-3 text-gw-navy/50">
               Email Address
             </label>

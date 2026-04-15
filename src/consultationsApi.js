@@ -12,6 +12,7 @@ export async function saveConsultationSubmission(formData) {
     first_name: formData.firstName?.trim() ?? "",
     last_name: formData.lastName?.trim() ?? "",
     business_name: formData.businessName?.trim() ?? "",
+    business_state: formData.businessState?.trim() || null,
     phone_number: formData.phoneNumber?.trim() ?? "",
     email: formData.email?.trim() ?? "",
     employee_count: Number(formData.employeeCount) || 0,

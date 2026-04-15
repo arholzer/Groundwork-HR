@@ -690,6 +690,20 @@ export default function Admin() {
                               </code>{" "}
                               instead if you prefer; the API accepts either name.
                             </p>
+                            <p className="text-gw-navy/60 mt-2 rounded-lg border border-amber-200/80 bg-amber-50/90 px-3 py-2.5 text-gw-navy">
+                              <span className="font-semibold text-gw-navy">
+                                Live site = Production:
+                              </span>{" "}
+                              If your key only applies to{" "}
+                              <span className="font-semibold">Preview</span> and{" "}
+                              <span className="font-semibold">Development</span>,
+                              it is{" "}
+                              <span className="font-semibold">not</span> available
+                              on <span className="font-semibold">hrgroundwork.com</span>
+                              . Edit the variable in Vercel and enable{" "}
+                              <span className="font-semibold">Production</span>, then
+                              Save.
+                            </p>
                             <p className="text-gw-navy/60 mt-2">
                               Team-level variables must be{" "}
                               <span className="font-semibold text-gw-navy/80">

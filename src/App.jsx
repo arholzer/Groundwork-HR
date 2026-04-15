@@ -475,18 +475,12 @@ export default function App() {
         >
           <p className="text-base sm:text-lg">
             <strong className="text-white font-semibold">GroundWork HR</strong>
-            {/* Inconspicuous staff entry: Alt+Shift+click the em dash (Option+Shift on Mac). */}
             <button
               type="button"
-              tabIndex={-1}
-              aria-hidden="true"
-              title=""
-              className="mx-2 sm:mx-3 inline p-0 min-w-[1ch] text-white/25 bg-transparent border-0 cursor-default text-[inherit] font-inherit leading-none align-baseline select-none hover:text-white/35"
-              onClick={(e) => {
-                if (e.altKey && e.shiftKey) {
-                  e.preventDefault();
-                  window.location.href = "/admin.html";
-                }
+              aria-label="Staff sign-in"
+              className="mx-2 sm:mx-3 inline p-0 min-w-[1ch] text-white/25 bg-transparent border-0 cursor-pointer text-[inherit] font-inherit leading-none align-baseline select-none hover:text-white/45 transition-colors"
+              onClick={() => {
+                window.location.href = "/admin.html";
               }}
             >
               —

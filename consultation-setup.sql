@@ -13,7 +13,10 @@ create table if not exists public.consultation_submissions (
   email text not null,
   employee_count integer not null,
   service_type text not null,
-  notes text
+  notes text,
+  status text not null default 'new',
+  constraint consultation_submissions_status_check
+    check (status in ('new', 'archived', 'deleted'))
 );
 
 alter table public.consultation_submissions enable row level security;
@@ -31,6 +34,17 @@ create policy "Allow public select consultation_submissions"
   for select
   to anon, authenticated
   using (true);
+
+drop policy if exists "Allow update consultation_submissions" on public.consultation_submissions;
+create policy "Allow update consultation_submissions"
+  on public.consultation_submissions
+  for update
+  to anon, authenticated
+  using (true)
+  with check (true);
+
+-- Allow the browser anon key to change folder (inbox / archive / trash).
+grant select, insert, update on public.consultation_submissions to anon, authenticated;
 
 -- MVP: anon can read all rows so the admin page (using the anon key) can list them.
 -- For production, replace the SELECT policy with server-side access or Supabase Auth.

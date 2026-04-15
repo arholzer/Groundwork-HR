@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { motion } from "motion/react";
 import * as Slider from "@radix-ui/react-slider";
@@ -27,25 +27,53 @@ const itemVariants = {
   },
 };
 
+const FORM_DEFAULTS = {
+  firstName: "",
+  lastName: "",
+  businessName: "",
+  phoneNumber: "",
+  email: "",
+  employeeCount: 10,
+  serviceType: "monthly",
+  notes: "",
+};
+
+function isCalendlyOrigin(origin) {
+  return (
+    origin === "https://calendly.com" || origin === "https://app.calendly.com"
+  );
+}
+
 export default function Consultation() {
   const {
     register,
     handleSubmit,
     setValue,
     watch,
+    reset,
     formState: { errors },
   } = useForm({
-    defaultValues: {
-      employeeCount: 10,
-      serviceType: "monthly",
-      notes: "",
-    },
+    defaultValues: { ...FORM_DEFAULTS },
   });
 
   const employeeCount = watch("employeeCount");
   const serviceType = watch("serviceType");
   const [isOpeningCalendly, setIsOpeningCalendly] = useState(false);
   const [saveWarning, setSaveWarning] = useState(null);
+  const [bookingConfirmed, setBookingConfirmed] = useState(false);
+
+  const onCalendlyMessage = useCallback((event) => {
+    if (!isCalendlyOrigin(event.origin)) return;
+    if (event.data?.event !== "calendly.event_scheduled") return;
+    setBookingConfirmed(true);
+    setSaveWarning(null);
+    reset({ ...FORM_DEFAULTS });
+  }, [reset]);
+
+  useEffect(() => {
+    window.addEventListener("message", onCalendlyMessage);
+    return () => window.removeEventListener("message", onCalendlyMessage);
+  }, [onCalendlyMessage]);
 
   const onSubmit = async (data) => {
     setIsOpeningCalendly(true);
@@ -120,19 +148,80 @@ export default function Consultation() {
           transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
           className="relative mb-14"
         >
-          <p className="text-xs font-bold tracking-[0.2em] text-gw-primary/60 uppercase mb-3">
-            Get started
-          </p>
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-gw-navy mb-4 leading-tight tracking-tight">
-            Book Your
-            <br />
-            <span className="text-gw-primary">Consultation</span>
-          </h1>
-          <p className="text-lg text-gw-navy/60 max-w-lg">
-            Let&apos;s discuss how we can support your business growth
-          </p>
+          {bookingConfirmed ? (
+            <>
+              <p className="text-xs font-bold tracking-[0.2em] text-emerald-600/90 uppercase mb-3">
+                Confirmed
+              </p>
+              <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-gw-navy mb-4 leading-tight tracking-tight">
+                Your consultation
+                <br />
+                <span className="text-gw-primary">is booked</span>
+              </h1>
+              <p className="text-lg text-gw-navy/60 max-w-xl leading-relaxed">
+                Thank you. You should receive a calendar confirmation from
+                Calendly shortly. We look forward to speaking with you.
+              </p>
+            </>
+          ) : (
+            <>
+              <p className="text-xs font-bold tracking-[0.2em] text-gw-primary/60 uppercase mb-3">
+                Get started
+              </p>
+              <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-gw-navy mb-4 leading-tight tracking-tight">
+                Book Your
+                <br />
+                <span className="text-gw-primary">Consultation</span>
+              </h1>
+              <p className="text-lg text-gw-navy/60 max-w-lg">
+                Let&apos;s discuss how we can support your business growth
+              </p>
+            </>
+          )}
         </motion.div>
 
+        {bookingConfirmed ? (
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+            className="relative rounded-2xl border border-gw-navy/10 bg-white p-8 sm:p-10 shadow-lg shadow-gw-navy/5 max-w-xl"
+          >
+            <div className="flex items-center gap-3 mb-6">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-500/15 text-emerald-600">
+                <Check className="h-6 w-6" strokeWidth={2.5} />
+              </div>
+              <div>
+                <p className="font-bold text-gw-navy text-lg">
+                  You&apos;re all set
+                </p>
+                <p className="text-sm text-gw-navy/55">
+                  Your time slot is reserved.
+                </p>
+              </div>
+            </div>
+            <p className="text-sm text-gw-navy/65 leading-relaxed mb-8">
+              If you need to reschedule, use the link in your Calendly email.
+              For anything urgent, reply to your confirmation message.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <a
+                href="/"
+                className="inline-flex justify-center items-center rounded-full bg-gw-primary px-8 py-3 text-sm font-bold text-white shadow-lg shadow-gw-primary/20 hover:bg-gw-primary-dark transition-colors no-underline"
+              >
+                Back to home
+              </a>
+              <button
+                type="button"
+                onClick={() => setBookingConfirmed(false)}
+                className="inline-flex justify-center items-center rounded-full border-2 border-gw-navy/15 bg-transparent px-8 py-3 text-sm font-bold text-gw-navy hover:border-gw-primary/40 hover:text-gw-primary transition-colors"
+              >
+                Book another time
+              </button>
+            </div>
+          </motion.div>
+        ) : (
+          <>
         {saveWarning && (
           <div
             role="status"
@@ -366,6 +455,8 @@ export default function Consultation() {
             </motion.button>
           </motion.div>
         </motion.form>
+          </>
+        )}
       </div>
 
       {/* Footer */}

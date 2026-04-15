@@ -15,6 +15,7 @@ if (ok) {
       "Fix on Vercel:\n" +
       "  • Open project **groundwork-hr** → Settings → Environment Variables → add **VITE_ADMIN_PASSWORD** for **Production**.\n" +
       "  • If you added it under **Team** settings instead, edit that variable and **Link to Projects** → select **groundwork-hr** (shared vars do nothing until linked).\n" +
+      "  • On the **project**, remove any duplicate **VITE_ADMIN_PASSWORD** with an **empty** value — it overrides a linked team variable.\n" +
       "  • Then run a **new** Production deployment (Redeploy / push).\n"
   );
 }

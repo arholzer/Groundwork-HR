@@ -7,8 +7,18 @@ import {
 
 const SESSION_KEY = "gw_admin_session";
 
+/** Normalizes pasted / autofill text (NBSP, BOM, outer whitespace). */
+function normalizePasswordInput(value) {
+  return String(value ?? "")
+    .replace(/^\uFEFF/, "")
+    .replace(/\u00a0/g, " ")
+    .trim();
+}
+
 function readExpectedPassword() {
-  return import.meta.env.VITE_ADMIN_PASSWORD?.trim() ?? "";
+  const raw = import.meta.env.VITE_ADMIN_PASSWORD;
+  if (raw == null || raw === "") return "";
+  return normalizePasswordInput(raw);
 }
 
 function formatServiceType(value) {
@@ -408,7 +418,7 @@ export default function Admin() {
       setError(true);
       return;
     }
-    if (password === expected) {
+    if (normalizePasswordInput(password) === expected) {
       sessionStorage.setItem(SESSION_KEY, "1");
       setAuthed(true);
       setPassword("");
@@ -581,6 +591,26 @@ export default function Admin() {
                           </span>{" "}
                           — otherwise builds never see it.
                         </p>
+                        <p className="text-gw-navy/60 mt-2">
+                          On the{" "}
+                          <span className="font-semibold text-gw-navy/80">
+                            groundwork-hr
+                          </span>{" "}
+                          project, check{" "}
+                          <span className="font-semibold text-gw-navy/80">
+                            Environment Variables
+                          </span>{" "}
+                          for a second{" "}
+                          <code className="text-xs font-mono text-gw-primary bg-gw-primary/5 px-1.5 py-0.5 rounded">
+                            VITE_ADMIN_PASSWORD
+                          </code>{" "}
+                          entry with an{" "}
+                          <span className="font-semibold text-gw-navy/80">
+                            empty
+                          </span>{" "}
+                          value — project keys override team keys, which
+                          silences a linked shared password.
+                        </p>
                       </>
                     )}
                   </div>
@@ -610,9 +640,16 @@ export default function Admin() {
                   {error && (
                     <p className="text-sm text-red-600/90 mt-2.5 flex items-center gap-1.5">
                       <span className="inline-block w-1 h-1 rounded-full bg-red-500 shrink-0" />
-                      {configured
-                        ? "That password didn’t match. Try again."
-                        : "Password isn’t configured for this build yet."}
+                      {configured ? (
+                        <>
+                          That password didn’t match. Re-type it carefully
+                          (copy/paste can add hidden spaces). If you recently
+                          changed the password in Vercel, redeploy so the new
+                          value is in the build.
+                        </>
+                      ) : (
+                        "Password isn’t configured for this build yet."
+                      )}
                     </p>
                   )}
                 </div>

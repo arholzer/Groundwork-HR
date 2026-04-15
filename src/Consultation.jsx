@@ -83,8 +83,16 @@ export default function Consultation() {
     try {
       const saveResult = await saveConsultationSubmission(data);
       if (saveResult.status === "error") {
+        const em =
+          saveResult.error &&
+          typeof saveResult.error.message === "string" &&
+          saveResult.error.message.trim()
+            ? saveResult.error.message.trim()
+            : "";
         setSaveWarning(
-          "Your details could not be saved to the admin log. You can still book below—please mention your company in the Calendly notes."
+          em
+            ? `Could not save to your admin log (${em}). You can still book below—repeat key details in Calendly. If this mentions business_state, run consultation-add-business-state.sql in Supabase, then submit again.`
+            : "Your details could not be saved to the admin log. You can still book below—please mention your company in the Calendly notes."
         );
       }
 

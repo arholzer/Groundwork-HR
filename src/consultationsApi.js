@@ -2,17 +2,26 @@ import { getSupabase, isSupabaseConfigured } from "./lib/supabase.js";
 
 export { isSupabaseConfigured };
 
+/** PostgREST / Postgres when `business_state` column has not been migrated yet. */
+function shouldRetryInsertWithoutBusinessState(error) {
+  if (!error) return false;
+  const blob = [error.message, error.details, error.hint, String(error.code ?? "")]
+    .filter(Boolean)
+    .join(" ");
+  if (!/business_state/i.test(blob)) return false;
+  return /column|unknown|schema|does not exist|PGRST|42703/i.test(blob);
+}
+
 /** Persist a consultation form submission (public insert). */
 export async function saveConsultationSubmission(formData) {
   if (!isSupabaseConfigured()) {
     return { status: "skipped" };
   }
   const supabase = getSupabase();
-  const row = {
+  const baseRow = {
     first_name: formData.firstName?.trim() ?? "",
     last_name: formData.lastName?.trim() ?? "",
     business_name: formData.businessName?.trim() ?? "",
-    business_state: formData.businessState?.trim() || null,
     phone_number: formData.phoneNumber?.trim() ?? "",
     email: formData.email?.trim() ?? "",
     employee_count: Number(formData.employeeCount) || 0,
@@ -20,9 +29,16 @@ export async function saveConsultationSubmission(formData) {
     notes: formData.notes?.trim() || null,
     status: "new",
   };
-  const { error } = await supabase
-    .from("consultation_submissions")
-    .insert([row]);
+  const stateTrim = formData.businessState?.trim() ?? "";
+  const row =
+    stateTrim !== ""
+      ? { ...baseRow, business_state: stateTrim }
+      : { ...baseRow };
+
+  let { error } = await supabase.from("consultation_submissions").insert([row]);
+  if (error && stateTrim && shouldRetryInsertWithoutBusinessState(error)) {
+    ({ error } = await supabase.from("consultation_submissions").insert([baseRow]));
+  }
   if (error) return { status: "error", error };
   return { status: "saved" };
 }

@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>About — GroundWork HR</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              gw: {
+                primary: "#24587E",
+                "primary-dark": "#1d4766",
+                navy: "#17293F",
+                surface: "#C8CCD2",
+                muted: "#e8eaed",
+              },
+            },
+            fontFamily: {
+              sans: ["Inter", "system-ui", "-apple-system", "Segoe UI", "Roboto", "sans-serif"],
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      html { scroll-behavior: smooth; }
+
+      /* Scroll-triggered animations */
+      .reveal {
+        opacity: 0;
+        transform: translateY(28px);
+        transition: opacity 0.7s cubic-bezier(0.25, 0.1, 0.25, 1),
+                    transform 0.7s cubic-bezier(0.25, 0.1, 0.25, 1);
+      }
+      .reveal.from-left {
+        transform: translateX(-32px) translateY(0);
+      }
+      .reveal.from-right {
+        transform: translateX(32px) translateY(0);
+      }
+      .reveal.visible {
+        opacity: 1;
+        transform: translateX(0) translateY(0);
+      }
+
+      /* Stagger children */
+      .reveal.d1 { transition-delay: 0.06s; }
+      .reveal.d2 { transition-delay: 0.12s; }
+      .reveal.d3 { transition-delay: 0.18s; }
+      .reveal.d4 { transition-delay: 0.24s; }
+      .reveal.d5 { transition-delay: 0.30s; }
+
+      /* Hero entrance — runs on load */
+      .hero-enter {
+        opacity: 0;
+        transform: translateY(20px);
+        animation: heroFade 0.75s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+      }
+      .hero-enter.he2 { animation-delay: 0.15s; }
+      .hero-enter.he3 { animation-delay: 0.30s; }
+
+      @keyframes heroFade {
+        to { opacity: 1; transform: translateY(0); }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .reveal, .hero-enter { opacity: 1; transform: none; animation: none; transition: none; }
+      }
+    </style>
+  </head>
+  <body class="min-h-screen bg-gw-muted text-gw-navy font-sans">
+
+    <!-- Header -->
+    <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md shadow-md border-b border-gw-navy/10">
+      <div class="max-w-7xl mx-auto px-5 sm:px-6 py-4 flex items-center justify-between gap-4">
+        <a href="/" class="text-xl sm:text-2xl tracking-tight no-underline text-gw-navy">
+          <span class="font-semibold">Ground</span><span class="font-bold text-gw-primary">Work</span><span class="font-semibold text-gw-navy/80"> HR</span>
+        </a>
+        <nav class="hidden md:flex items-center gap-8">
+          <a href="/#services" class="text-sm font-semibold text-gw-navy/70 hover:text-gw-primary transition-colors">Services</a>
+          <a href="/about.html" class="text-sm font-semibold text-gw-primary">About</a>
+          <a href="/consultation.html" class="px-5 py-2.5 text-sm font-bold text-white bg-gw-primary rounded-full hover:bg-gw-primary-dark shadow-lg shadow-gw-primary/25 transition-colors">Book Consultation</a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+
+      <!-- Hero banner -->
+      <section class="bg-gradient-to-br from-gw-navy via-[#1a3a52] to-gw-primary text-white py-20 sm:py-28 px-5 sm:px-6 overflow-hidden">
+        <div class="max-w-4xl mx-auto">
+          <p class="hero-enter text-xs font-bold tracking-[0.2em] uppercase text-white/50 mb-4">About GroundWork HR</p>
+          <h1 class="hero-enter he2 text-3xl sm:text-4xl md:text-5xl font-bold leading-tight mb-6">
+            HR built for the way small businesses actually work.
+          </h1>
+          <p class="hero-enter he3 text-lg sm:text-xl text-white/80 leading-relaxed max-w-2xl">
+            We started Groundwork HR because small businesses deserve the same
+            quality of HR support as large companies — without the overhead, the
+            jargon, or the one-size-fits-all approach.
+          </p>
+        </div>
+      </section>
+
+      <!-- Our Story + Headshot -->
+      <section class="py-20 sm:py-28 px-5 sm:px-6 bg-white overflow-hidden">
+        <div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+
+          <div>
+            <p class="reveal text-xs font-bold tracking-[0.2em] text-gw-primary/60 uppercase mb-3">Our Story</p>
+            <h2 class="reveal d1 text-3xl sm:text-4xl font-bold text-gw-navy mb-6 leading-tight">Hi, I'm Amanda.</h2>
+
+            <div class="space-y-5 text-gw-navy/70 leading-relaxed">
+              <p class="reveal d2">
+                I've spent my career in HR working alongside startups and small
+                businesses — and I kept seeing the same problem. Growing teams were
+                either winging it on HR, paying for bloated consulting packages they
+                didn't need, or waiting until something went wrong to get help.
+              </p>
+              <p class="reveal d3">
+                I founded Groundwork HR to change that. My approach is simple: give
+                small businesses access to real, practical HR expertise — on their
+                terms, at their pace, and within their budget.
+              </p>
+              <p class="reveal d4">
+                Whether you need a single policy drafted or an ongoing HR consultant
+                as you scale, I'm here to help you build a people foundation that
+                actually holds up.
+              </p>
+            </div>
+
+            <a
+              href="/#contact"
+              class="reveal d5 inline-flex items-center gap-2 mt-8 px-7 py-3.5 text-sm font-bold text-white bg-gw-navy rounded-full hover:bg-gw-primary transition-colors shadow-lg"
+            >
+              Work With Me
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14m-6-6 6 6-6 6"/></svg>
+            </a>
+          </div>
+
+          <div class="reveal from-right flex justify-center lg:justify-end">
+            <img
+              src="/assets/amanda-headshot.png"
+              alt="Amanda, founder of GroundWork HR"
+              class="w-full max-w-sm sm:max-w-md rounded-2xl shadow-2xl shadow-gw-navy/15 object-cover"
+            />
+          </div>
+        </div>
+      </section>
+
+      <!-- How We Work — values -->
+      <section class="py-20 sm:py-24 px-5 sm:px-6 bg-slate-50 overflow-hidden">
+        <div class="max-w-6xl mx-auto">
+          <div class="text-center mb-14 sm:mb-16">
+            <p class="reveal text-xs font-bold tracking-[0.2em] text-gw-primary/60 uppercase mb-3">How We Work</p>
+            <h2 class="reveal d1 text-3xl sm:text-4xl font-bold text-gw-navy">What guides us</h2>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <!-- Value 1 -->
+            <div class="reveal d1 text-center sm:text-left">
+              <div class="w-12 h-12 rounded-xl bg-gw-primary/10 flex items-center justify-center text-gw-primary mx-auto sm:mx-0 mb-4">
+                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+              </div>
+              <h3 class="text-lg font-bold text-gw-navy mb-2">Practical over perfect</h3>
+              <p class="text-gw-navy/60 leading-relaxed text-sm sm:text-base">
+                We focus on what actually works for small teams — not textbook HR
+                theory designed for Fortune 500 companies.
+              </p>
+            </div>
+
+            <!-- Value 2 -->
+            <div class="reveal d2 text-center sm:text-left">
+              <div class="w-12 h-12 rounded-xl bg-rose-500/10 flex items-center justify-center text-rose-500 mx-auto sm:mx-0 mb-4">
+                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+              </div>
+              <h3 class="text-lg font-bold text-gw-navy mb-2">People first</h3>
+              <p class="text-gw-navy/60 leading-relaxed text-sm sm:text-base">
+                Good HR protects your business and your people. We help you build
+                a workplace where employees want to stay.
+              </p>
+            </div>
+
+            <!-- Value 3 -->
+            <div class="reveal d3 text-center sm:text-left">
+              <div class="w-12 h-12 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-600 mx-auto sm:mx-0 mb-4">
+                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+              </div>
+              <h3 class="text-lg font-bold text-gw-navy mb-2">Relationships, not transactions</h3>
+              <p class="text-gw-navy/60 leading-relaxed text-sm sm:text-base">
+                We take the time to understand your business before recommending
+                anything. Your success is our success.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Why GroundWork + Contact side-by-side -->
+      <section class="py-20 sm:py-24 px-5 sm:px-6 bg-white overflow-hidden">
+        <div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16">
+
+          <!-- Why GroundWork -->
+          <div class="reveal from-left">
+            <p class="text-xs font-bold tracking-[0.2em] text-gw-primary/60 uppercase mb-3">Why GroundWork HR</p>
+            <h2 class="text-2xl sm:text-3xl font-bold text-gw-navy mb-6 leading-tight">
+              The right fit for growing teams
+            </h2>
+            <ul class="space-y-4">
+              <li class="flex gap-3 items-start">
+                <svg class="w-5 h-5 text-gw-primary flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                <span class="text-gw-navy/70">Specialized in startups and small businesses under 50 employees</span>
+              </li>
+              <li class="flex gap-3 items-start">
+                <svg class="w-5 h-5 text-gw-primary flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                <span class="text-gw-navy/70">No long-term contracts — work with us when you need us</span>
+              </li>
+              <li class="flex gap-3 items-start">
+                <svg class="w-5 h-5 text-gw-primary flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                <span class="text-gw-navy/70">Straightforward advice without the corporate jargon</span>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Get In Touch -->
+          <div class="reveal from-right rounded-2xl bg-slate-50 border border-slate-200/80 p-8 sm:p-10">
+            <p class="text-xs font-bold tracking-[0.2em] text-gw-primary/60 uppercase mb-3">Get In Touch</p>
+            <h2 class="text-2xl sm:text-3xl font-bold text-gw-navy mb-4 leading-tight">
+              Ready to build your HR foundation?
+            </h2>
+            <p class="text-gw-navy/65 leading-relaxed mb-6">
+              Book a free 30-minute consultation and let's talk about where your
+              business is today and what you need to grow with confidence.
+            </p>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-[#0f1724] text-gw-surface/90 py-10 px-5 text-center border-t border-white/5">
+      <p class="text-base sm:text-lg">
+        <strong class="text-white font-semibold">GroundWork HR</strong>
+        <span class="mx-2 sm:mx-3 text-white/25">—</span>
+        <span>Building better workplaces, one policy at a time.</span>
+      </p>
+    </footer>
+
+    <script>
+      (function () {
+        var observer = new IntersectionObserver(
+          function (entries) {
+            entries.forEach(function (entry) {
+              if (entry.isIntersecting) {
+                entry.target.classList.add("visible");
+                observer.unobserve(entry.target);
+              }
+            });
+          },
+          { threshold: 0.15, rootMargin: "0px 0px -40px 0px" }
+        );
+        document.querySelectorAll(".reveal").forEach(function (el) {
+          observer.observe(el);
+        });
+      })();
+    </script>
+
+  </body>
+</html>

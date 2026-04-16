@@ -8,6 +8,23 @@ import { getUsStateLabel } from "./usStates.js";
 
 const SESSION_KEY = "gw_admin_session";
 
+/** When DB has no `business_state` column, save path may prefix this to `notes`. */
+const LEGACY_STATE_IN_NOTES = /^\[Business state:\s*([^\]]+)\]\s*\n?/;
+
+function submissionStateLabel(row) {
+  const code = row?.business_state?.trim();
+  if (code) return getUsStateLabel(code) || code;
+  const m = String(row?.notes ?? "").trim().match(LEGACY_STATE_IN_NOTES);
+  return m ? m[1].trim() : "";
+}
+
+function submissionNotesDisplay(row) {
+  const cleaned = String(row?.notes ?? "")
+    .replace(LEGACY_STATE_IN_NOTES, "")
+    .trim();
+  return cleaned || null;
+}
+
 /** Normalizes pasted / autofill text (NBSP, BOM, outer whitespace). */
 function normalizePasswordInput(value) {
   return String(value ?? "")
@@ -181,6 +198,7 @@ function SubmissionDetailModal({ row, onClose, onSetStatus, statusBusy }) {
   if (!row) return null;
 
   const bucket = normalizeSubmissionStatus(row);
+  const notesBody = submissionNotesDisplay(row);
 
   return (
     <div className="fixed inset-0 z-[100] flex items-end justify-center p-0 sm:items-center sm:p-6">
@@ -244,9 +262,7 @@ function SubmissionDetailModal({ row, onClose, onSetStatus, statusBusy }) {
             )}
           </Field>
           <Field label="Business state">
-            {row.business_state
-              ? getUsStateLabel(row.business_state)
-              : "—"}
+            {submissionStateLabel(row) || "—"}
           </Field>
           <Field label="Employees">
             {formatEmployees(row.employee_count)}
@@ -259,8 +275,8 @@ function SubmissionDetailModal({ row, onClose, onSetStatus, statusBusy }) {
               Notes
             </p>
             <div className="min-h-[4rem] max-h-[40vh] overflow-y-auto rounded-xl border border-gw-navy/10 bg-gw-muted/25 px-4 py-3 text-sm leading-relaxed text-gw-navy whitespace-pre-wrap break-words">
-              {row.notes?.trim() ? (
-                row.notes
+              {notesBody ? (
+                notesBody
               ) : (
                 <span className="text-gw-navy/40">No notes provided.</span>
               )}
@@ -857,6 +873,29 @@ export default function Admin() {
                         ? "Connect Supabase in .env"
                         : "Supabase is not wired for this deployment"}
                     </p>
+                    {!import.meta.env.DEV && (
+                      <p className="mb-3 rounded-lg border border-gw-navy/10 bg-white/80 px-3 py-2 text-xs text-gw-navy/80">
+                        <span className="font-semibold text-gw-navy">
+                          What this build actually has:
+                        </span>{" "}
+                        <code className="rounded bg-gw-muted/80 px-1">VITE_SUPABASE_URL</code>{" "}
+                        {import.meta.env.VITE_SUPABASE_URL?.trim()
+                          ? "✓ set"
+                          : "✗ missing"}{" "}
+                        ·{" "}
+                        <code className="rounded bg-gw-muted/80 px-1">
+                          VITE_SUPABASE_ANON_KEY
+                        </code>{" "}
+                        {import.meta.env.VITE_SUPABASE_ANON_KEY?.trim()
+                          ? "✓ set"
+                          : "✗ missing"}
+                        <span className="block mt-1.5 text-gw-navy/55">
+                          If either is missing after you added them in Vercel,
+                          you still need a <strong>new production deploy</strong>{" "}
+                          — old JavaScript cannot gain new env vars.
+                        </span>
+                      </p>
+                    )}
                     {import.meta.env.DEV ? (
                       <p className="leading-relaxed mb-3">
                         Add{" "}
@@ -960,7 +999,9 @@ export default function Admin() {
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-gw-navy/8">
-                          {filteredRows.map((r) => (
+                          {filteredRows.map((r) => {
+                            const notePreview = submissionNotesDisplay(r);
+                            return (
                             <tr
                               key={r.id}
                               role="button"
@@ -1000,21 +1041,24 @@ export default function Admin() {
                                 {formatServiceType(r.service_type)}
                               </td>
                               <td className="max-w-[220px] px-4 py-3 align-top text-gw-navy/65">
-                                {r.notes ? (
+                                {notePreview ? (
                                   <span className="line-clamp-2 text-xs leading-relaxed">
-                                    {r.notes}
+                                    {notePreview}
                                   </span>
                                 ) : (
                                   <span className="text-gw-navy/35">—</span>
                                 )}
                               </td>
                             </tr>
-                          ))}
+                            );
+                          })}
                         </tbody>
                       </table>
                     </div>
                     <div className="divide-y divide-gw-navy/10 lg:hidden">
-                      {filteredRows.map((r) => (
+                      {filteredRows.map((r) => {
+                        const notePreview = submissionNotesDisplay(r);
+                        return (
                         <div
                           key={r.id}
                           role="button"
@@ -1057,16 +1101,17 @@ export default function Admin() {
                           <p className="text-gw-navy/65">
                             {formatServiceType(r.service_type)}
                           </p>
-                          {r.notes ? (
+                          {notePreview ? (
                             <p className="mt-1 line-clamp-2 border-t border-gw-navy/10 pt-2 text-xs text-gw-navy/70">
                               <span className="font-semibold text-gw-navy/80">
                                 Notes:{" "}
                               </span>
-                              {r.notes}
+                              {notePreview}
                             </p>
                           ) : null}
                         </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   </div>
                 )}

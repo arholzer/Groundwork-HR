@@ -1,4 +1,5 @@
 import { getSupabase, isSupabaseConfigured } from "./lib/supabase.js";
+import { getUsStateLabel } from "./usStates.js";
 
 export { isSupabaseConfigured };
 
@@ -37,7 +38,13 @@ export async function saveConsultationSubmission(formData) {
 
   let { error } = await supabase.from("consultation_submissions").insert([row]);
   if (error && stateTrim && shouldRetryInsertWithoutBusinessState(error)) {
-    ({ error } = await supabase.from("consultation_submissions").insert([baseRow]));
+    const stateLine = `[Business state: ${getUsStateLabel(stateTrim) || stateTrim}]`;
+    const mergedNotes = [stateLine, baseRow.notes]
+      .filter((x) => x != null && String(x).trim() !== "")
+      .join("\n");
+    ({ error } = await supabase.from("consultation_submissions").insert([
+      { ...baseRow, notes: mergedNotes },
+    ]));
   }
   if (error) return { status: "error", error };
   return { status: "saved" };
